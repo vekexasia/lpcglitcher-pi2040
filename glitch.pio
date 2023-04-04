@@ -1,0 +1,41 @@
+; x holds delay cycles * 2
+; y: holds glitch clocks
+.program glitch
+
+
+.wrap_target
+        out pins, 32
+        ; on y for width of glitch
+        ; and wait for signal pin to trigger high on GPIO20
+        out x, 32
+        out y, 32
+        wait 1 GPIO 20
+
+    delay_loop:
+        jmp x-- delay_loop
+
+        ; glitch proper pins should be set by code. in txfifo.
+        out pins, 32
+
+    glitch_loop:
+        jmp y-- glitch_loop
+
+        ; restore pins original state / glitch ends
+        out pins, 32
+.wrap
+% c-sdk {
+static inline void glitch_program_init(PIO pio, uint sm, uint offset, uint data_pin, float clk_div) {
+    pio_gpio_init(pio, data_pin);
+    gpio_set_drive_strength(data_pin, GPIO_DRIVE_STRENGTH_12MA);
+    gpio_set_slew_rate(data_pin, GPIO_SLEW_RATE_FAST);
+    pio_sm_set_consecutive_pindirs(pio, sm, data_pin, 1, true);
+    pio_sm_config c = pio_serialiser_program_get_default_config(offset);
+    sm_config_set_out_pins(&c, data_pin, 1);
+    sm_config_set_fifo_join(&c, PIO_FIFO_JOIN_TX);
+    sm_config_set_clkdiv(&c, clk_div);
+    // shift right
+    sm_config_set_out_shift(&c, false, true, 32);
+    pio_sm_init(pio, sm, offset, &c);
+    pio_sm_set_enabled(pio, sm, true);
+}
+%}

@@ -4,7 +4,6 @@
 #include "hardware/dma.h"
 #include "hardware/sync.h"
 #include "pio_serializer.pio.h"
-#include "glitch.pio.h"
 
 #define MAXPINENABLE 18
 
@@ -14,10 +13,21 @@
 
 #define SIGNALPINFROMLPC 11
 
-
 #define CMD_DELAY 'D'
 #define CMD_PULSE 'P'
 #define CMD_GLITCH 'G'
+
+
+/**
+ * Command structure
+ * 32bit per each row
+ * - pins initial state
+ * - clockcycles delay after gpio20 high signal
+ * - clockcycles width of glitch
+ * - pins set for glitch.
+ * - pins normal state
+ */
+static uint32_t cmds[1+1+1+1];
 
 void initialize_board() {
     gpio_init(MAXPINENABLE);

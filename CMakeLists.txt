@@ -14,6 +14,9 @@ add_executable(${PROJECT_NAME}
 pico_generate_pio_header(${PROJECT_NAME}
 ${CMAKE_CURRENT_LIST_DIR}/pio_serializer.pio
 )
+pico_generate_pio_header(${PROJECT_NAME}
+        ${CMAKE_CURRENT_LIST_DIR}/glitch.pio
+        )
 #dca
 target_link_libraries(${PROJECT_NAME}
         pico_stdlib
