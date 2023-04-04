@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "tusb.h"
+#include "pio_serializer.pio.h"
 
 #define MAXPINENABLE 18
 
